@@ -1,9 +1,16 @@
 using CupAvailabilityChecker.Cli.Commands;
 using CupAvailabilityChecker.Cli.Mapping;
 using CupAvailabilityChecker.Cli.Validation;
+using CupAvailabilityChecker.Core;
+using CupAvailabilityChecker.Core.Availability;
+using CupAvailabilityChecker.Core.Browser;
 using CupAvailabilityChecker.Core.Models;
+using CupAvailabilityChecker.Core.Navigation;
+using CupAvailabilityChecker.Core.Notifications;
+using CupAvailabilityChecker.Core.Polling;
 using CupAvailabilityChecker.Core.Repositories;
 using CupAvailabilityChecker.Core.Services;
+using CupAvailabilityChecker.Core.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -34,6 +41,30 @@ namespace CupAvailabilityChecker.Cli.DependencyInjection
             services.AddScoped<MunicipalitiesValidator>();
             services.AddScoped<RadiusValidator>();
             services.AddScoped<RootCommandBuilder>();
+
+            services.AddScoped<IWebDriverFactory, SeleniumWebDriverFactory>();
+            services.AddScoped<SeleniumWaitHelper>();
+            services.AddScoped<SeleniumClickHelper>();
+            services.AddScoped<CookieBannerDismisser>();
+            services.AddScoped<CupLoginHelper>();
+            services.AddScoped<AreaSelectValueMapper>();
+            services.AddScoped<ProvinceSelectValueMapper>();
+            services.AddScoped<NewRecipeNavigationStep>();
+            services.AddScoped<ExistingBookingNavigationStep>();
+            services.AddScoped<INavigationStepSelector, NavigationStepSelector>();
+            services.AddScoped<NewRecipeAvailabilityReader>();
+            services.AddScoped<ExistingBookingAvailabilityReader>();
+            services.AddScoped<IAvailabilityReaderSelector, AvailabilityReaderSelector>();
+            services.AddScoped<NewRecipeAvailabilityMatcher>();
+            services.AddScoped<ExistingBookingAvailabilityMatcher>();
+            services.AddScoped<IAvailabilityMatcherSelector, AvailabilityMatcherSelector>();
+            services.AddScoped<NewRecipeAvailabilityRefresher>();
+            services.AddScoped<ExistingBookingAvailabilityRefresher>();
+            services.AddScoped<IAvailabilityRefresherSelector, AvailabilityRefresherSelector>();
+            services.AddScoped<ISessionExpiryDetector, SessionExpiryDetector>();
+            services.AddScoped<INotificationSender, ConsoleNotificationSender>();
+            services.AddScoped<AvailabilityPoller>();
+            services.AddScoped<BookingCheckOrchestrator>();
 
             return services;
         }

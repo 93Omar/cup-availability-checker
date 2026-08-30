@@ -3,6 +3,7 @@ using CupAvailabilityChecker.Cli.Binding;
 using CupAvailabilityChecker.Cli.Mapping;
 using CupAvailabilityChecker.Cli.Utilities;
 using CupAvailabilityChecker.Cli.Validation;
+using CupAvailabilityChecker.Core;
 using CupAvailabilityChecker.Core.Models;
 using Microsoft.Extensions.Logging;
 
@@ -27,6 +28,7 @@ namespace CupAvailabilityChecker.Cli.Commands
         private readonly MunicipalityValidator _municipalityValidator;
         private readonly MunicipalitiesValidator _municipalitiesValidator;
         private readonly RadiusValidator _radiusValidator;
+        private readonly BookingCheckOrchestrator _orchestrator;
         private readonly ILogger<RootCommandBuilder> _logger;
 
         public RootCommandBuilder(
@@ -42,6 +44,7 @@ namespace CupAvailabilityChecker.Cli.Commands
             MunicipalityValidator municipalityValidator,
             MunicipalitiesValidator municipalitiesValidator,
             RadiusValidator radiusValidator,
+            BookingCheckOrchestrator orchestrator,
             ILogger<RootCommandBuilder> logger)
         {
             _areaMapper = areaMapper;
@@ -56,6 +59,7 @@ namespace CupAvailabilityChecker.Cli.Commands
             _municipalityValidator = municipalityValidator;
             _municipalitiesValidator = municipalitiesValidator;
             _radiusValidator = radiusValidator;
+            _orchestrator = orchestrator;
             _logger = logger;
         }
 
@@ -122,6 +126,32 @@ namespace CupAvailabilityChecker.Cli.Commands
                 CustomParser = _radiusParser.Parse,
             };
 
+            var giorniOption = new Option<int?>("--giorni", "-g")
+            {
+                Description = "Numero massimo di giorni da oggi entro cui una disponibilità è considerata interessante (solo --modalita nuova).",
+                Required = false,
+            };
+
+            var intervalloOption = new Option<int>("--intervallo", "-i")
+            {
+                Description = "Intervallo in secondi tra un controllo di disponibilità e il successivo.",
+                Required = false,
+                DefaultValueFactory = _ => 30,
+            };
+
+            var browserOption = new Option<BrowserType>("--browser", "-b")
+            {
+                Description = $"Browser da usare per la navigazione. Valori ammessi: {FormatUtils.JoinValues(Enum.GetValues<BrowserType>())}",
+                Required = false,
+                DefaultValueFactory = _ => BrowserType.Chrome,
+            };
+
+            var headlessOption = new Option<bool>("--headless")
+            {
+                Description = "Esegue il browser in modalità headless (senza finestra visibile).",
+                Required = false,
+            };
+
             var rootCommand = new RootCommand("Cup Availability Checker")
             {
                 codiceFiscaleOption,
@@ -132,6 +162,10 @@ namespace CupAvailabilityChecker.Cli.Commands
                 comuniOption,
                 comuneOption,
                 raggioOption,
+                giorniOption,
+                intervalloOption,
+                browserOption,
+                headlessOption,
             };
 
             var validatorBinder = new OptionValidatorBinder(rootCommand);
@@ -141,7 +175,7 @@ namespace CupAvailabilityChecker.Cli.Commands
             validatorBinder.AddValidator(comuniOption, _municipalitiesValidator);
             validatorBinder.AddValidator(raggioOption, _radiusValidator);
 
-            rootCommand.SetAction(parseResult =>
+            rootCommand.SetAction(async (parseResult, cancellationToken) =>
             {
                 string codiceFiscale = parseResult.GetValue(codiceFiscaleOption)!;
                 string nre = parseResult.GetValue(nreOption)!;
@@ -151,12 +185,32 @@ namespace CupAvailabilityChecker.Cli.Commands
                 string[]? comuni = parseResult.GetValue(comuniOption);
                 string? comune = parseResult.GetValue(comuneOption);
                 double? raggio = parseResult.GetValue(raggioOption);
+                int? giorni = parseResult.GetValue(giorniOption);
+                int intervallo = parseResult.GetValue(intervalloOption);
+                BrowserType browser = parseResult.GetValue(browserOption);
+                bool headless = parseResult.GetValue(headlessOption);
 
                 string comuniText = comuni is null ? "-" : FormatUtils.JoinValues(comuni);
 
                 _logger.LogInformation(
-                    "Parametri ricevuti: CodiceFiscale={CodiceFiscale}, Nre={Nre}, Modalita={Modalita}, Area={Area}, Provincia={Provincia}, Comuni={Comuni}, Comune={Comune}, Raggio={Raggio}",
-                    codiceFiscale, nre, modalita, area, provincia, comuniText, comune, raggio);
+                    "Parametri ricevuti: CodiceFiscale={CodiceFiscale}, Nre={Nre}, Modalita={Modalita}, Area={Area}, Provincia={Provincia}, Comuni={Comuni}, Comune={Comune}, Raggio={Raggio}, Giorni={Giorni}, Intervallo={Intervallo}s, Browser={Browser}, Headless={Headless}",
+                    codiceFiscale, nre, modalita, area, provincia, comuniText, comune, raggio, giorni, intervallo, browser, headless);
+
+                BookingParameters parameters = new BookingParameters(
+                    codiceFiscale,
+                    nre,
+                    modalita,
+                    area,
+                    provincia,
+                    comuni,
+                    comune,
+                    raggio,
+                    giorni,
+                    TimeSpan.FromSeconds(intervallo),
+                    browser,
+                    headless);
+
+                await _orchestrator.RunAsync(parameters, cancellationToken);
             });
 
             return rootCommand;

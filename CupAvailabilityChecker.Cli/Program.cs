@@ -7,7 +7,7 @@ namespace CupAvailabilityChecker.Cli
 {
     internal class Program
     {
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             using ServiceProvider serviceProvider = new ServiceCollection()
                 .AddCliServices()
@@ -21,9 +21,18 @@ namespace CupAvailabilityChecker.Cli
                 .GetRequiredService<RootCommandBuilder>()
                 .Build();
 
-            return rootCommand
+            // Allows Ctrl+C to gracefully stop the availability polling loop (step 4), instead of
+            // abruptly killing the process while a browser session is open.
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            Console.CancelKeyPress += (_, eventArgs) =>
+            {
+                eventArgs.Cancel = true;
+                cancellationTokenSource.Cancel();
+            };
+
+            return await rootCommand
                 .Parse(args)
-                .Invoke();
+                .InvokeAsync(cancellationToken: cancellationTokenSource.Token);
         }
     }
 }

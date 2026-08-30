@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Nuova": {
+      "commandName": "Project",
+      "commandLineArgs": "--codice-fiscale RSSMRA80A01H501U --nre 1234567890123456789 --modalita nuova --area nord --provincia ss --comune Sassari --raggio 15 --giorni 30 --intervallo 20 --browser Chrome"
+    },
+    "Esistente": {
+      "commandName": "Project",
+      "commandLineArgs": "--codice-fiscale RSSMRA80A01H501U --nre 1234567890123456789 --modalita esistente --area sud --provincia ca --intervallo 20 --browser Chrome"
+    }
+  }
+}
