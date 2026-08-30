@@ -17,8 +17,10 @@ namespace CupAvailabilityChecker.Cli.Commands
     {
         private readonly IItalianEnumMapper<Area> _areaMapper;
         private readonly IItalianEnumMapper<Province> _provinceMapper;
+        private readonly IItalianEnumMapper<BookingMode> _bookingModeMapper;
         private readonly ItalianEnumOptionParser<Area> _areaParser;
         private readonly ItalianEnumOptionParser<Province> _provinciaParser;
+        private readonly ItalianEnumOptionParser<BookingMode> _modalitaParser;
         private readonly RadiusOptionParser _radiusParser;
         private readonly FiscalCodeValidator _fiscalCodeValidator;
         private readonly ProvinceAreaValidator _provinceAreaValidator;
@@ -30,8 +32,10 @@ namespace CupAvailabilityChecker.Cli.Commands
         public RootCommandBuilder(
             IItalianEnumMapper<Area> areaMapper,
             IItalianEnumMapper<Province> provinceMapper,
+            IItalianEnumMapper<BookingMode> bookingModeMapper,
             ItalianEnumOptionParser<Area> areaParser,
             ItalianEnumOptionParser<Province> provinciaParser,
+            ItalianEnumOptionParser<BookingMode> modalitaParser,
             RadiusOptionParser radiusParser,
             FiscalCodeValidator fiscalCodeValidator,
             ProvinceAreaValidator provinceAreaValidator,
@@ -42,8 +46,10 @@ namespace CupAvailabilityChecker.Cli.Commands
         {
             _areaMapper = areaMapper;
             _provinceMapper = provinceMapper;
+            _bookingModeMapper = bookingModeMapper;
             _areaParser = areaParser;
             _provinciaParser = provinciaParser;
+            _modalitaParser = modalitaParser;
             _radiusParser = radiusParser;
             _fiscalCodeValidator = fiscalCodeValidator;
             _provinceAreaValidator = provinceAreaValidator;
@@ -65,6 +71,14 @@ namespace CupAvailabilityChecker.Cli.Commands
             {
                 Description = "Numero di ricetta elettronica.",
                 Required = true,
+            };
+
+            string modalitaAllowedValuesText = FormatUtils.JoinValues(_bookingModeMapper.AllowedValues);
+            var modalitaOption = new Option<BookingMode>("--modalita", "-m")
+            {
+                Description = $"Modalità di ricerca. Valori ammessi: {modalitaAllowedValuesText}",
+                Required = true,
+                CustomParser = _modalitaParser.Parse,
             };
 
             string areaAllowedValuesText = FormatUtils.JoinValues(_areaMapper.AllowedValues);
@@ -112,6 +126,7 @@ namespace CupAvailabilityChecker.Cli.Commands
             {
                 codiceFiscaleOption,
                 nreOption,
+                modalitaOption,
                 areaOption,
                 provinciaOption,
                 comuniOption,
@@ -130,6 +145,7 @@ namespace CupAvailabilityChecker.Cli.Commands
             {
                 string codiceFiscale = parseResult.GetValue(codiceFiscaleOption)!;
                 string nre = parseResult.GetValue(nreOption)!;
+                BookingMode modalita = parseResult.GetValue(modalitaOption);
                 Area area = parseResult.GetValue(areaOption);
                 Province provincia = parseResult.GetValue(provinciaOption);
                 string[]? comuni = parseResult.GetValue(comuniOption);
@@ -139,8 +155,8 @@ namespace CupAvailabilityChecker.Cli.Commands
                 string comuniText = comuni is null ? "-" : FormatUtils.JoinValues(comuni);
 
                 _logger.LogInformation(
-                    "Parametri ricevuti: CodiceFiscale={CodiceFiscale}, Nre={Nre}, Area={Area}, Provincia={Provincia}, Comuni={Comuni}, Comune={Comune}, Raggio={Raggio}",
-                    codiceFiscale, nre, area, provincia, comuniText, comune, raggio);
+                    "Parametri ricevuti: CodiceFiscale={CodiceFiscale}, Nre={Nre}, Modalita={Modalita}, Area={Area}, Provincia={Provincia}, Comuni={Comuni}, Comune={Comune}, Raggio={Raggio}",
+                    codiceFiscale, nre, modalita, area, provincia, comuniText, comune, raggio);
             });
 
             return rootCommand;

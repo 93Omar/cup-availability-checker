@@ -23,8 +23,10 @@ namespace CupAvailabilityChecker.Cli.DependencyInjection
             services.AddScoped<IMunicipalityRepository, JsonMunicipalityRepository>();
             services.AddScoped<IItalianEnumMapper<Area>, AreaItalianMapper>();
             services.AddScoped<IItalianEnumMapper<Province>, ProvinceItalianMapper>();
+            services.AddScoped<IItalianEnumMapper<BookingMode>, BookingModeItalianMapper>();
             services.AddScoped<ItalianEnumOptionParser<Area>>();
             services.AddScoped<ItalianEnumOptionParser<Province>>();
+            services.AddScoped<ItalianEnumOptionParser<BookingMode>>();
             services.AddScoped<RadiusOptionParser>();
             services.AddScoped<FiscalCodeValidator>();
             services.AddScoped<ProvinceAreaValidator>();
