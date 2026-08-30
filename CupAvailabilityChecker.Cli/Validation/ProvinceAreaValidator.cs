@@ -10,11 +10,11 @@ namespace CupAvailabilityChecker.Cli.Validation
     /// Validates that a province is allowed for the selected geographic area,
     /// reusing the rules already defined in <see cref="ProvinceFilterRetriever"/>.
     /// </summary>
-    public sealed class ProvinciaAreaValidator : IDependentParameterValidator<Province, Area>
+    public sealed class ProvinceAreaValidator : IDependentParameterValidator<Province, Area>
     {
         private readonly ProvinceFilterRetriever _provinceFilterRetriever;
 
-        public ProvinciaAreaValidator(ProvinceFilterRetriever provinceFilterRetriever)
+        public ProvinceAreaValidator(ProvinceFilterRetriever provinceFilterRetriever)
         {
             _provinceFilterRetriever = provinceFilterRetriever;
         }

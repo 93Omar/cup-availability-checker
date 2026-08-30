@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="Data\gi_comuni.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

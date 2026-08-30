@@ -5,11 +5,11 @@ using FluentResults;
 namespace CupAvailabilityChecker.Cli.Validation
 {
     /// <summary>
-    /// Validates that a string is a formally correct Italian codice fiscale
+    /// Validates that a string is a formally correct Italian fiscal code (codice fiscale)
     /// (16 alphanumeric characters in the standard format: 6 letters, 2 digits, 1 letter,
     /// 2 digits, 1 letter, 3 digits, 1 letter). The check digit is not validated.
     /// </summary>
-    public sealed class CodiceFiscaleValidator : IParameterValidator<string>
+    public sealed class FiscalCodeValidator : IParameterValidator<string>
     {
         private static readonly Regex Pattern = new(
             "^[A-Za-z]{6}[0-9]{2}[A-Za-z][0-9]{2}[A-Za-z][0-9]{3}[A-Za-z]$",

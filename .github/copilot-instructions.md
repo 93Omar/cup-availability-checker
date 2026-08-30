@@ -60,6 +60,37 @@ Queste istruzioni valgono per l'intero repository e vanno seguite quando si gene
   all'utente finale della CLI (es. descrizioni delle option, messaggi di errore), che invece
   restano in italiano perché la CLI è pensata per utenti italiani.
 
+## Nomi
+
+- **I nomi di classi, interfacce, record, enum ed i loro membri (proprietà, metodi) devono essere
+  in inglese**, anche quando il dominio applicativo è italiano (es. `Municipality` e non `Comune`,
+  `IMunicipalityRepository` e non `IComuneRepository`). Questo vale anche per i DTO interni usati
+  per la deserializzazione (es. `MunicipalityJsonRecord`), le cui proprietà C# restano in inglese
+  mappando le chiavi JSON italiane con `[JsonPropertyName("...")]` (la chiave JSON è un contratto
+  esterno immutabile e resta quindi in italiano).
+  **Eccezione**: le variabili locali che rappresentano un'opzione della CLI mantengono un nome che
+  rispecchia il flag italiano corrispondente (es. `comuneOption`, `raggioOption` per `--comune`,
+  `--raggio`), per coerenza con il nome del flag stesso, che resta in italiano essendo rivolto
+  all'utente finale.
+- **Una sola classe per file `.cs`**, anche per tipi ausiliari/interni non pubblici (es. un DTO
+  usato da un solo repository, come `MunicipalityJsonRecord`): non annidare classi private/interne
+  dentro la classe principale né definirne più di una nello stesso file.
+
+## Core (`CupAvailabilityChecker.Core`)
+
+- **Repository pattern per l'accesso ai dati di dominio**: quando un dato può in futuro provenire
+  da fonti diverse (file locale, chiamata HTTP, database), definire un'interfaccia in
+  `Repositories/` (es. `IMunicipalityRepository`) e un'implementazione concreta specifica per la
+  fonte attuale (es. `JsonMunicipalityRepository`), tenendo i dettagli della fonte (DTO di
+  deserializzazione, percorso del file, ecc.) privati all'implementazione. I consumer dipendono
+  solo dall'interfaccia.
+- **Logica ausiliaria scollegata dal repository** (es. calcolo di distanze geografiche) va estratta
+  in una classe dedicata e riusabile, composta dal repository tramite un campo privato (es.
+  `JsonMunicipalityRepository` compone `HaversineDistanceCalculator`), coerentemente con la regola
+  di "composizione preferita all'ereditarietà".
+- I dataset di riferimento (es. `Data/gi_comuni.json`) vanno copiati in output con
+  `<None Include="..." CopyToOutputDirectory="PreserveNewest" />` nel `.csproj`.
+
 ## CLI (`CupAvailabilityChecker.Cli`)
 
 - Il parsing degli argomenti da riga di comando usa **System.CommandLine**.
