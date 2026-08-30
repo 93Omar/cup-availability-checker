@@ -14,6 +14,7 @@ indent_size = 4
 # IDE0305: Collection initialization can be simplified (ToList → [..])
 # Suppressed: ToList() is explicit and readable; collection expression syntax is a style preference.
 dotnet_diagnostic.IDE0305.severity = none
+dotnet_diagnostic.IDE0290.severity = none
 
 [*.{csproj,slnx,props,targets}]
 indent_size = 2
