@@ -4,6 +4,7 @@ using CupAvailabilityChecker.Cli.Validation;
 using CupAvailabilityChecker.Core.Models;
 using CupAvailabilityChecker.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CupAvailabilityChecker.Cli.DependencyInjection
 {
@@ -16,6 +17,7 @@ namespace CupAvailabilityChecker.Cli.DependencyInjection
     {
         public static IServiceCollection AddCliServices(this IServiceCollection services)
         {
+            services.AddLogging(builder => builder.AddConsole());
             services.AddScoped<ProvinceFilterRetriever>();
             services.AddScoped<IItalianEnumMapper<Area>, AreaItalianMapper>();
             services.AddScoped<IItalianEnumMapper<Province>, ProvinceItalianMapper>();

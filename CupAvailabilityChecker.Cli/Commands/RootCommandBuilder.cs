@@ -4,6 +4,7 @@ using CupAvailabilityChecker.Cli.Mapping;
 using CupAvailabilityChecker.Cli.Utilities;
 using CupAvailabilityChecker.Cli.Validation;
 using CupAvailabilityChecker.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace CupAvailabilityChecker.Cli.Commands
 {
@@ -20,6 +21,7 @@ namespace CupAvailabilityChecker.Cli.Commands
         private readonly ItalianEnumOptionParser<Province> _provinciaParser;
         private readonly CodiceFiscaleValidator _codiceFiscaleValidator;
         private readonly ProvinciaAreaValidator _provinciaAreaValidator;
+        private readonly ILogger<RootCommandBuilder> _logger;
 
         public RootCommandBuilder(
             IItalianEnumMapper<Area> areaMapper,
@@ -27,7 +29,8 @@ namespace CupAvailabilityChecker.Cli.Commands
             ItalianEnumOptionParser<Area> areaParser,
             ItalianEnumOptionParser<Province> provinciaParser,
             CodiceFiscaleValidator codiceFiscaleValidator,
-            ProvinciaAreaValidator provinciaAreaValidator)
+            ProvinciaAreaValidator provinciaAreaValidator,
+            ILogger<RootCommandBuilder> logger)
         {
             _areaMapper = areaMapper;
             _provinceMapper = provinceMapper;
@@ -35,6 +38,7 @@ namespace CupAvailabilityChecker.Cli.Commands
             _provinciaParser = provinciaParser;
             _codiceFiscaleValidator = codiceFiscaleValidator;
             _provinciaAreaValidator = provinciaAreaValidator;
+            _logger = logger;
         }
 
         public RootCommand Build()
@@ -86,10 +90,9 @@ namespace CupAvailabilityChecker.Cli.Commands
                 Area area = parseResult.GetValue(areaOption);
                 Province provincia = parseResult.GetValue(provinciaOption);
 
-                Console.WriteLine($"Codice fiscale: {codiceFiscale}");
-                Console.WriteLine($"NRE: {nre}");
-                Console.WriteLine($"Area: {area}");
-                Console.WriteLine($"Provincia: {provincia}");
+                _logger.LogInformation(
+                    "Parametri ricevuti: CodiceFiscale={CodiceFiscale}, Nre={Nre}, Area={Area}, Provincia={Provincia}",
+                    codiceFiscale, nre, area, provincia);
             });
 
             return rootCommand;

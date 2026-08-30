@@ -80,6 +80,10 @@ Queste istruzioni valgono per l'intero repository e vanno seguite quando si gene
   classe che riceve tutte le sue dipendenze nel costruttore ed espone un solo metodo `Build()`.
   `RootCommandBuilder` stesso è registrato nel container: `Program.cs` risolve così un solo servizio
   (`serviceProvider.GetRequiredService<RootCommandBuilder>().Build()`).
+- **Logging**: usare `Microsoft.Extensions.Logging` (`ILogger<T>` iniettato via costruttore),
+  registrato con `services.AddLogging(builder => builder.AddConsole())`, invece di `Console.WriteLine`
+  per tracciare informazioni (es. i parametri ricevuti dalla CLI). Usare i placeholder strutturati
+  del logging (es. `{CodiceFiscale}`) anziché stringhe interpolate.
 - **Lifetime dei servizi**: i servizi della CLI sono registrati come `Scoped`, non `Singleton`.
   Concettualmente, lo scope corrisponde all'esecuzione di un singolo comando, così come in una REST
   API lo scope corrisponde all'esecuzione di una request/action. `Program.cs` crea esplicitamente
