@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CupAvailabilityChecker.Cli/CupAvailabilityChecker.Cli.csproj" />
+  <Project Path="CupAvailabilityChecker.Core/CupAvailabilityChecker.Core.csproj" />
+</Solution>
